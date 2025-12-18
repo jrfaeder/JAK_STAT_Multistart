@@ -1,0 +1,2 @@
+observableId	observableFormula	noiseFormula
+obs_total_pS1	sf_pSTAT1 * total_pS1	sigma_pSTAT1 * (sf_pSTAT1 * total_pS1 + 0.01)
