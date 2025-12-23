@@ -20,6 +20,7 @@ using Symbolics
 using SymbolicUtils
 using Colors
 using SciMLBase
+using LinearAlgebra
 
 # Add IL6_TGFB src directory to LOAD_PATH to import analysis functions
 const IL6_SRC_CLUSTER = "/net/dali/home/mscbio/ark426/Research/IL6_TGFB/src"
@@ -224,6 +225,103 @@ function compute_metrics(petab_problem, theta_optim)
 end
 
 """
+    plot_eigenvalue_spectrum(petab_problem, theta_optim, param_names)
+
+Compute Hessian, extract eigenvalues, and plot the spectrum (Scree plot).
+Matches user request for log-eigenvalue visualization.
+"""
+function plot_eigenvalue_spectrum(petab_problem, theta_optim, param_names)
+    println("\nComputing Hessian and Eigenvalues...")
+    plot_dir = PLOTS_DIR
+    mkpath(plot_dir)
+    
+    try
+        # Compute Hessian
+        # PEtab.jl API: problem.hess(theta) returns the out-of-place Hessian
+        hess = petab_problem.hess(theta_optim)
+        
+        # Compute Eigenvalues
+        # We use 'eigen' from LinearAlgebra
+        # Since Hessian is symmetric, eigenvalues should be real
+        F = eigen(Symmetric(hess)) 
+        vals = F.values
+        vecs = F.vectors
+        
+        # Sort eigenvalues (descending)
+        # Often for stiff/sloppy analysis we look at descending order
+        # But Scree plots (like the user image) often show descending
+        perm = sortperm(abs.(vals), rev=true)
+        sorted_vals = vals[perm]
+        sorted_vecs = vecs[:, perm]
+        
+        # Calculate log10 of absolute eigenvalues
+        # Add small epsilon to avoid log(0) if any are exactly zero
+        log_vals = log10.(abs.(sorted_vals) .+ 1e-16)
+        
+        # --- Plot 1: Eigenvalue Spectrum (Scree Plot) ---
+        n_params = length(sorted_vals)
+        n_indices = 1:n_params
+        
+        p1 = scatter(n_indices, log_vals,
+            title="Eigenvalue Spectrum (Hessian)",
+            xlabel="Eigenvalue Index (n)",
+            ylabel="log10(|λ_n|)",
+            label="Eigenvalues",
+            marker=:circle,
+            color=:black,
+            legend=:topright,
+            size=(800, 600),
+            dpi=150
+        )
+        # Add connecting line
+        plot!(p1, n_indices, log_vals, color=:black, linestyle=:dash, label="")
+        
+        # Add threshold line (often 0 or small cutoff)
+        hline!(p1, [0.0], color=:gray, linestyle=:dot, label="log(|λ|)=0")
+        
+        save_path1 = joinpath(plot_dir, "eigenvalue_spectrum.png")
+        savefig(p1, save_path1)
+        println("  ✅ Saved: $save_path1")
+        
+        # --- Plot 2: Parameter Contribution to Stiffest/Sloppiest Mode ---
+        # The user said "Show parameters". This often means showing which parameters
+        # contribute to the principal eigenvectors.
+        
+        # Let's plot the components of the FIRST (stiffest) and LAST (sloppiest) eigenvectors
+        p2 = bar(abs.(sorted_vecs[:, 1]),
+            title="Stiffest Direction (First Eigenvector)",
+            xlabel="Parameter Index",
+            ylabel="|Contribution|",
+            label="",
+            xticks=(1:n_params, param_names),
+            xrotation=90,
+            size=(1000, 600),
+            bottom_margin=10Plots.mm
+        )
+        save_path2 = joinpath(plot_dir, "eigenvector_stiffest.png")
+        savefig(p2, save_path2)
+        println("  ✅ Saved: $save_path2")
+        
+        p3 = bar(abs.(sorted_vecs[:, end]),
+            title="Sloppiest Direction (Last Eigenvector)",
+            xlabel="Parameter Index",
+            ylabel="|Contribution|",
+            label="",
+            xticks=(1:n_params, param_names),
+            xrotation=90,
+            size=(1000, 600),
+            bottom_margin=10Plots.mm
+        )
+        save_path3 = joinpath(plot_dir, "eigenvector_sloppiest.png")
+        savefig(p3, save_path3)
+        println("  ✅ Saved: $save_path3")
+        
+    catch e
+        println("  ⚠️  Eigenvalue analysis failed: $e")
+    end
+end
+
+"""
     plot_model_fit(petab_problem, theta_optim, param_names)
 
 Generate time-course plots comparing model predictions to experimental data.
@@ -275,13 +373,13 @@ function plot_model_fit(petab_problem, theta_optim, param_names)
         # Filter measurements for this observable
         obs_meas = filter(row -> row.observableId == obs_id, measurements)
         
-        # Create multi-panel plot - 5 columns x 3 rows for 15 conditions
-        n_cols = 5
-        n_rows = 3
+        # Create multi-panel plot - 3 columns x 2 rows for 6 conditions (IL-6 1,10; IL-10 1,10; Combo 1+1, 10+10)
+        n_cols = 3
+        n_rows = 2
         
         has_predictions = !isnothing(ode_solutions)
         plot_title_str = has_predictions ? "Model Fit: $obs_id" : "Data: $obs_id (sim failed)"
-        plt = plot(layout=(n_rows, n_cols), size=(1600, 350*n_rows), dpi=150,
+        plt = plot(layout=(n_rows, n_cols), size=(1200, 800), dpi=150,
                    plot_title=plot_title_str,
                    left_margin=10Plots.mm,
                    right_margin=5Plots.mm,
@@ -395,39 +493,8 @@ function plot_model_fit(petab_problem, theta_optim, param_names)
         println("  ✅ Saved: $save_path")
     end
     
-    # Also create a summary plot with select conditions for ALL observables
-    for obs_id in observables
-        summary_plt = plot(layout=(2, 2), size=(800, 600), dpi=150,
-                           plot_title="Data Summary: $obs_id")
-        
-        select_conds = ["cond_il6_10", "cond_il10_10", "cond_il6_10_il10_10", "cond_il6_1_il10_1"]
-        colors_list = [:red, :blue, :purple, :orange]
-        
-        for (idx, cond_id) in enumerate(select_conds)
-            if idx > 4 break end
-            
-            cond_meas = filter(row -> row.simulationConditionId == cond_id && row.observableId == obs_id, measurements)
-            if isempty(cond_meas) continue end
-            
-            times = Float64.(cond_meas.time)
-            meas_values = Float64.(cond_meas.measurement)
-            
-            scatter!(summary_plt, times, meas_values,
-                    subplot=idx,
-                    label="Data",
-                    marker=:circle,
-                    markersize=6,
-                    color=colors_list[idx],
-                    title=replace(cond_id, "cond_" => ""),
-                    xlabel="Time (min)",
-                    ylabel=obs_id,
-                    legend=:topright)
-        end
-        
-        summary_save_path = joinpath(plot_dir, "model_fit_summary_$(obs_id).png")
-        savefig(summary_plt, summary_save_path)
-        println("  ✅ Summary plot saved: $summary_save_path")
-    end
+    
+    return nothing
     
     return nothing
 end
@@ -900,6 +967,26 @@ function collect_results(; run_ident::Bool=true, run_profiles::Bool=false)
         println("✅ Model fit plots complete")
     catch e
         println("⚠️  Model fit plotting failed: $e")
+        for (exc, bt) in Base.catch_stack()
+            showerror(stdout, exc, bt)
+            println()
+        end
+    end
+    
+    # =========================================================================
+    # EIGENVALUE ANALYSIS (HESSIAN SPECTRUM)
+    # =========================================================================
+    println("\n" * "="^60)
+    println("RUNNING EIGENVALUE ANALYSIS")
+    println("="^60)
+    
+    try
+        petab_problem, _ = load_petab_problem()
+        θ_best = Vector{Float64}(best_xmin)
+        plot_eigenvalue_spectrum(petab_problem, θ_best, correct_param_names)
+        println("✅ Eigenvalue analysis plots complete")
+    catch e
+        println("⚠️  Eigenvalue analysis failed: $e")
         for (exc, bt) in Base.catch_stack()
             showerror(stdout, exc, bt)
             println()

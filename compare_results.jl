@@ -80,7 +80,33 @@ function load_ptempest_trajectories()
     println("  Loaded $(nrow(pstat1_filtered)) trajectories for IL-6 $(Int(TARGET_L1)) ng/mL condition")
     println("  Time range: 0 to $(n_timepoints-1) minutes")
     
-    return time_points, pstat1_filtered, pstat3_filtered, n_filtered
+    # NORMALIZE pTempest Data to match our model's normalization (t=20 min = 1.0)
+    # Our model is normalized to IL6=10 @ 20min ≈ 1.0
+    # pTempest is in absolute units (uM), so we must normalize it to compare DYNAMICS
+    
+    # Find t=20 index (assuming 1-min steps starting at 0, index 21 is t=20)
+    t20_idx = findfirst(==(20.0), time_points)
+    if isnothing(t20_idx)
+        println("  Warning: t=20 not found in pTempest time points. Using peak for normalization.")
+        t20_idx = argmax(vec(median(Matrix(pstat3_filtered), dims=1)))
+    end
+    
+    # Calculate median value at t=20 for normalization
+    pS1_vals = Matrix(pstat1_filtered)
+    pS3_vals = Matrix(pstat3_filtered)
+    
+    med_pS1_t20 = median(pS1_vals[:, t20_idx])
+    med_pS3_t20 = median(pS3_vals[:, t20_idx])
+    
+    println("  Normalizing pTempest to median @ t=20:")
+    println("    pSTAT1 median @ 20min: $med_pS1_t20 -> 1.0")
+    println("    pSTAT3 median @ 20min: $med_pS3_t20 -> 1.0")
+    
+    # Create normalized DataFrames
+    pS1_norm = DataFrame(pS1_vals ./ med_pS1_t20, :auto)
+    pS3_norm = DataFrame(pS3_vals ./ med_pS3_t20, :auto)
+    
+    return time_points, pS1_norm, pS3_norm, n_filtered
 end
 
 function load_best_parameters()
@@ -292,18 +318,52 @@ function simulate_with_petab(best_params)
     idx_pS1 = all_indices[mask_pS1]
     idx_pS3 = all_indices[mask_pS3]
     
+    # Restore extraction from sim_vals (Accidentally removed in previous edit)
     sim_pS1 = sim_vals[idx_pS1]
     sim_pS3 = sim_vals[idx_pS3]
     
+    # ---------------------------------------------------------
+    # DEBUG: Check dimensions and values
+    # ---------------------------------------------------------
+    println("  DEBUG: Extracted simulation results")
+    println("    times_pS1 length: $(length(times_pS1))")
+    println("    sim_pS1 length: $(length(sim_pS1))")
+    
+    if isempty(sim_pS1)
+        error("Simulation returned no values for pSTAT1!")
+    end
+    
     # Paper doesn't use scale factors - simulated values are directly the model outputs
     # which are normalized to IL-6 10ng/mL @ t=20
-    raw_pS1 = copy(sim_pS1)
-    raw_pS3 = copy(sim_pS3)
+    # For comparison with pTempest, we re-normalize to t=20 exactly
+    
+    # Find t=20 indices
+    idx_t20_pS1 = findfirst(t -> abs(t - 20.0) < 0.1, times_pS1)
+    idx_t20_pS3 = findfirst(t -> abs(t - 20.0) < 0.1, times_pS3)
+    
+    println("  DEBUG: t=20 indices: pS1=$idx_t20_pS1, pS3=$idx_t20_pS3")
+    
+    # Robust normalization: fall back to max if t=20 is missing or zero
+    val_t20_pS1 = !isnothing(idx_t20_pS1) ? sim_pS1[idx_t20_pS1] : 0.0
+    val_t20_pS3 = !isnothing(idx_t20_pS3) ? sim_pS3[idx_t20_pS3] : 0.0
+    
+    norm_factor_pS1 = (val_t20_pS1 > 1e-9) ? val_t20_pS1 : maximum(sim_pS1)
+    norm_factor_pS3 = (val_t20_pS3 > 1e-9) ? val_t20_pS3 : maximum(sim_pS3)
+    
+    # Avoid division by zero
+    norm_factor_pS1 = max(norm_factor_pS1, 1e-9)
+    norm_factor_pS3 = max(norm_factor_pS3, 1e-9)
+    
+    raw_pS1 = sim_pS1 ./ norm_factor_pS1
+    raw_pS3 = sim_pS3 ./ norm_factor_pS3
     
     println("  Simulated $(length(sim_pS1)) pSTAT1 points, $(length(sim_pS3)) pSTAT3 points")
-    println("  Note: Paper uses raw model outputs (no scale factors)")
-    println("  pSTAT1 range: $(minimum(raw_pS1)) - $(maximum(raw_pS1))")
-    println("  pSTAT3 range: $(minimum(raw_pS3)) - $(maximum(raw_pS3))")
+    println("  Re-normalization factors (model val @ t=20):")
+    println("    pS1: $(val_t20_pS1) -> used factor $(norm_factor_pS1)")
+    println("    pS3: $(val_t20_pS3) -> used factor $(norm_factor_pS3)")
+    println("  Normalized ranges:")
+    println("    pSTAT1: $(minimum(raw_pS1)) - $(maximum(raw_pS1))")
+    println("    pSTAT3: $(minimum(raw_pS3)) - $(maximum(raw_pS3))")
     
     return times_pS1, raw_pS1, times_pS3, raw_pS3
 end
@@ -328,9 +388,9 @@ function plot_trajectory_overlay(time_points, ptempest_pstat1, ptempest_pstat3,
     pctl3 = 100 * mean(ptempest_peaks3 .<= best_peak3)
     
     # --- pSTAT1 ---
-    p1 = plot(title="pSTAT1: pTempest vs Best Fit (IL-6 10 ng/mL, n=$n_ptempest)", 
-              xlabel="Time (min)", ylabel="pSTAT1 concentration (raw model units)",
-              legend=:topright, size=(800, 600), titlefontsize=11)
+    p1 = plot(title="pSTAT1", 
+              xlabel="Time (min)", ylabel="Normalized pSTAT1",
+              legend=:topright, size=(800, 600), titlefontsize=12)
     
     # Plot pTempest ensemble (subsample to avoid overplotting)
     n_plot = min(500, nrow(ptempest_pstat1))
@@ -347,18 +407,14 @@ function plot_trajectory_overlay(time_points, ptempest_pstat1, ptempest_pstat3,
     q95_traj1 = vec([quantile(ptempest_matrix1[:, j], 0.95) for j in 1:size(ptempest_matrix1, 2)])
     
     plot!(p1, time_points, median_traj1, color=:blue, linewidth=2.5, 
-          label="pTempest Median ($(round(median(ptempest_peaks1), sigdigits=2)))")
+          label="pTempest Median")
     plot!(p1, time_points, q05_traj1, color=:blue, linewidth=1.5, linestyle=:dash, 
           label="pTempest 5-95%")
     plot!(p1, time_points, q95_traj1, color=:blue, linewidth=1.5, linestyle=:dash, label="")
     
     # Plot best fit (scatter for discrete time points)
     scatter!(p1, times_pS1, best_pstat1, color=:red, markersize=8, 
-             label="Best Fit ($(round(best_peak1, sigdigits=2)), $(round(pctl1, digits=0))th %ile)")
-    
-    # Add annotation box
-    annotate!(p1, [(0.98, 0.02, text("Best fit: $(round(pctl1, digits=1))th percentile", 
-                                     9, :right, :bottom, :darkgreen))])
+             label="Best Fit")
     
     savefig(p1, joinpath(PLOT_DIR, "pSTAT1_trajectory_overlay.png"))
     println("  > Saved: pSTAT1_trajectory_overlay.png")
@@ -368,9 +424,9 @@ function plot_trajectory_overlay(time_points, ptempest_pstat1, ptempest_pstat3,
     ymax_ptempest = maximum(ptempest_peaks3)
     ymax_plot = max(ymax_ptempest * 1.1, best_peak3 * 1.1)
     
-    p2 = plot(title="pSTAT3: pTempest vs Best Fit (IL-6 10 ng/mL, n=$n_ptempest)", 
-              xlabel="Time (min)", ylabel="pSTAT3 concentration (raw model units)",
-              legend=:topright, size=(800, 600), titlefontsize=11,
+    p2 = plot(title="pSTAT3", 
+              xlabel="Time (min)", ylabel="Normalized pSTAT3",
+              legend=:topright, size=(800, 600), titlefontsize=12,
               ylim=(0, ymax_plot))
     
     println("  Plotting $n_plot pTempest trajectories for pSTAT3...")
@@ -386,32 +442,25 @@ function plot_trajectory_overlay(time_points, ptempest_pstat1, ptempest_pstat3,
     q95_traj3 = vec([quantile(ptempest_matrix3[:, j], 0.95) for j in 1:size(ptempest_matrix3, 2)])
     
     plot!(p2, time_points, median_traj3, color=:blue, linewidth=2.5, 
-          label="pTempest Median ($(round(median(ptempest_peaks3), sigdigits=2)))")
+          label="pTempest Median")
     plot!(p2, time_points, q05_traj3, color=:blue, linewidth=1.5, linestyle=:dash, 
           label="pTempest 5-95%")
     plot!(p2, time_points, q95_traj3, color=:blue, linewidth=1.5, linestyle=:dash, label="")
     
     # Add horizontal line at pTempest max for reference
     hline!(p2, [ymax_ptempest], color=:orange, linewidth=1.5, linestyle=:dot,
-           label="pTempest Max ($(round(ymax_ptempest, sigdigits=2)))")
+           label="pTempest Max")
     
     # Plot best fit
     scatter!(p2, times_pS3, best_pstat3, color=:red, markersize=8, 
-             label="Best Fit ($(round(best_peak3, sigdigits=2)))")
-    
-    # Add annotation box
-    ratio_to_max = best_peak3 / ymax_ptempest
-    
-    # FIXED: Replaced 'x' symbol
-    annotate!(p2, [(0.98, 0.98, text("Best fit: $(round(ratio_to_max, digits=1))x pTempest max", 
-                                     9, :right, :top, :darkred))])
+             label="Best Fit")
     
     savefig(p2, joinpath(PLOT_DIR, "pSTAT3_trajectory_overlay.png"))
     println("  > Saved: pSTAT3_trajectory_overlay.png")
     
     # --- Combined summary plot ---
     p_combined = plot(p1, p2, layout=(1, 2), size=(1600, 600),
-                      plot_title="pTempest Ensemble Comparison (Cheemalavagu et al. 2024) Condition: IL-6 10 ng/mL, IL-10 = 0")
+                      plot_title="pTempest Ensemble Comparison (IL-6 10 ng/mL)")
     savefig(p_combined, joinpath(PLOT_DIR, "trajectory_comparison_summary.png"))
     println("  > Saved: trajectory_comparison_summary.png")
     
