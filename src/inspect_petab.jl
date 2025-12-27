@@ -8,9 +8,9 @@ using PEtab, DataFrames, XLSX, CSV
 using SymbolicUtils, Symbolics
 using Statistics
 
-const MODEL_NET = joinpath(@__DIR__, "variable_JAK_STAT_SOCS_degrad_model.net")
-const DATA_PSTAT1 = joinpath(@__DIR__, "Data", "pSTAT1_pooled_data.xlsx")
-const DATA_PSTAT3 = joinpath(@__DIR__, "Data", "pSTAT3_pooled_data.xlsx")
+const MODEL_NET = joinpath(@__DIR__, "..", "variable_JAK_STAT_SOCS_degrad_model.net")
+const DATA_PSTAT1 = joinpath(@__DIR__, "..", "Data", "pSTAT1_pooled_data.xlsx")
+const DATA_PSTAT3 = joinpath(@__DIR__, "..", "Data", "pSTAT3_pooled_data.xlsx")
 
 function parse_condition(col_name)
     l1_val = 0.0
@@ -123,6 +123,7 @@ function load_and_average_stat(data_path::String, stat_name::String)
     global_time_grid = sort(collect(all_times))
     
     # Compute averages: condition -> time -> mean
+    # NOTE: Only use actual measured values, NO interpolation
     avg_data = Dict{String, Dict{Float64, Float64}}()
     
     for cond in all_conds
@@ -130,14 +131,9 @@ function load_and_average_stat(data_path::String, stat_name::String)
         for t in global_time_grid
             vals_at_t = Float64[]
             for (exp, cond_dict) in data_by_exp
-                if haskey(cond_dict, cond)
-                    # Use existing value or interpolate if missing in this experiment
-                    t_points = sort(collect(keys(cond_dict[cond])))
-                    v_points = [cond_dict[cond][tp] for tp in t_points]
-                    val = linear_interpolate(t_points, v_points, t)
-                    if !isnan(val)
-                        push!(vals_at_t, val)
-                    end
+                if haskey(cond_dict, cond) && haskey(cond_dict[cond], t)
+                    # Only use actual measured values - NO interpolation
+                    push!(vals_at_t, cond_dict[cond][t])
                 end
             end
             if !isempty(vals_at_t)
@@ -285,7 +281,7 @@ function export_petab_tables()
     parameters_df = DataFrame(param_rows)
     
     # 8. Export
-    output_dir = joinpath(@__DIR__, "petab_files")
+    output_dir = joinpath(@__DIR__, "..", "petab_files")
     mkpath(output_dir)
     CSV.write(joinpath(output_dir, "measurements.tsv"), measurements_df; delim='\t')
     CSV.write(joinpath(output_dir, "conditions.tsv"), conditions_df; delim='\t')
