@@ -1,0 +1,82 @@
+BioNetGen version 2.9.3
+Reading from file /Users/faeder/Library/CloudStorage/OneDrive-UniversityofPittsburgh/Projects/JAK_STAT_Multistart/variable_JAK_STAT_SOCS_degrad_model/2025_12_19__11_52_18/variable_JAK_STAT_SOCS_degrad_model.bngl (level 0)
+Read 50 parameters.
+Read 14 molecule types.
+Read 14 species.
+Read 2 observable(s).
+Read 31 reaction rule(s).
+ACTION: generate_network( variable_JAK_STAT_SOCS_degrad_model )
+Iteration   0:    14 species      0 rxns  0.00e+00 CPU s
+Iteration   1:    16 species      4 rxns  1.00e-02 CPU s
+Iteration   2:    18 species      8 rxns  0.00e+00 CPU s
+Iteration   3:    21 species     13 rxns  0.00e+00 CPU s
+Iteration   4:    32 species     28 rxns  2.00e-02 CPU s
+Iteration   5:    41 species     54 rxns  2.00e-02 CPU s
+Iteration   6:    53 species     98 rxns  4.00e-02 CPU s
+Iteration   7:    53 species    122 rxns  3.00e-02 CPU s
+Cumulative CPU time for each rule
+Rule   1:     2 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule   2:     2 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule   3:    10 reactions 2.00e-02 CPU s 2.00e-03 CPU s/rxn
+Rule   4:    12 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule   5:    10 reactions 1.00e-02 CPU s 1.00e-03 CPU s/rxn
+Rule   6:    12 reactions 2.00e-02 CPU s 1.67e-03 CPU s/rxn
+Rule   7:    10 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule   8:     5 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule   9:     5 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  10:     5 reactions 1.00e-02 CPU s 2.00e-03 CPU s/rxn
+Rule  11:     5 reactions 1.00e-02 CPU s 2.00e-03 CPU s/rxn
+Rule  12:     6 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  13:     6 reactions 1.00e-02 CPU s 1.67e-03 CPU s/rxn
+Rule  14:     6 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  15:     6 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  16:     2 reactions 1.00e-02 CPU s 5.00e-03 CPU s/rxn
+Rule  17:     2 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  18:     2 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  19:     2 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  20:     1 reactions 2.00e-02 CPU s 2.00e-02 CPU s/rxn
+Rule  21:     1 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  22:     1 reactions 1.00e-02 CPU s 1.00e-02 CPU s/rxn
+Rule  23:     1 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  24:     1 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  25:     1 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  26:     1 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  27:     1 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  28:     1 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  29:     1 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  30:     1 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Rule  31:     1 reactions 0.00e+00 CPU s 0.00e+00 CPU s/rxn
+Total   :   122 reactions 1.20e-01 CPU s 9.84e-04 CPU s/rxn
+Wrote network in net format to ./variable_JAK_STAT_SOCS_degrad_model.net.
+CPU TIME: generate_network 0.12 s.
+Wrote Mexfile ./variable_JAK_STAT_SOCS_degrad_model_cvode.c and M-file script ./variable_JAK_STAT_SOCS_degrad_model.m.
+CPU TIME: writeMexfile 0.00 s.
+ACTION: simulate( method=>"cvode" )
+TSTART:0
+TEND:90
+Network simulation using cvode
+WARNING: writeFile(): Overwriting existing file ./variable_JAK_STAT_SOCS_degrad_model.net.
+Wrote network in net format to ./variable_JAK_STAT_SOCS_degrad_model.net.
+Running run_network on Jamess-MBP-5
+full command: /Users/faeder/miniconda3/lib/python3.12/site-packages/bionetgen/bng-mac/bin/run_network -o ./variable_JAK_STAT_SOCS_degrad_model -p cvode -a 1e-08 -r 1e-08 --cdat 1 --fdat 1 -g ./variable_JAK_STAT_SOCS_degrad_model.net ./variable_JAK_STAT_SOCS_degrad_model.net 0.989010989010989 91
+[simulation PID is: 84053]
+run_network 3.0
+Activating functions output (to .gdat)
+Read 50 parameters from ./variable_JAK_STAT_SOCS_degrad_model.net
+Read 53 species from ./variable_JAK_STAT_SOCS_degrad_model.net
+Read 2 group(s) from ./variable_JAK_STAT_SOCS_degrad_model.net
+Read 0 function(s) from ./variable_JAK_STAT_SOCS_degrad_model.net
+Found species with index 0 at line 112: assuming this is the null species.
+Found species with index 0 at line 113: assuming this is the null species.
+Read 122 reaction(s) from ./variable_JAK_STAT_SOCS_degrad_model.net
+122 reaction(s) have nonzero rate
+Initialization took 0.00 CPU seconds
+Propagating with cvode using dense LU
+Time course of concentrations written to file ./variable_JAK_STAT_SOCS_degrad_model.cdat.
+Time course of groups written to file ./variable_JAK_STAT_SOCS_degrad_model.gdat.
+Propagation took 0.00e+00 CPU seconds
+Program times:  0.00 CPU s 0.00 clock s
+Updating species concentrations from ./variable_JAK_STAT_SOCS_degrad_model.cdat
+CPU TIME: simulate 0.02 s.
+Finished processing file /Users/faeder/Library/CloudStorage/OneDrive-UniversityofPittsburgh/Projects/JAK_STAT_Multistart/variable_JAK_STAT_SOCS_degrad_model/2025_12_19__11_52_18/variable_JAK_STAT_SOCS_degrad_model.bngl.
+CPU TIME: total 0.18 s.

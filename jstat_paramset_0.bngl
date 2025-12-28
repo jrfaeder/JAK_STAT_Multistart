@@ -1,0 +1,136 @@
+# BNGL model file generated from BNGLSimulator
+# Parameter set 0 from param_sets.csv
+#
+
+begin model
+
+begin parameters
+  il6_il6r_binding               0.019056
+  il6_il6r_unbinding             9.22e-07
+  il6r_gp130_binding             2.1585
+  il6r_gp130_unbinding           0.0020191
+  il6_complex_jak1_binding       3.83e-05
+  il6_complex_jak1_unbinding     0.092048
+  il6_complex_jak2_binding       0.026832
+  il6_complex_jak2_unbinding     1.75e-08
+  SOCS3_il6r_binding             2225.8
+  SOCS3_il6r_unbinding           0.39669
+  SOCS3_gp130_binding            325.41
+  SOCS3_gp130_unbinding          3.45e-05
+  il6_jak1_med_STAT3_act         1.4e-05
+  il6_jak1_med_STAT1_act         2.32e-05
+  il6_jak2_med_STAT3_act         0.46833
+  il6_jak2_med_STAT1_act         0.00050093
+  il10_il10r1_binding            0.004884
+  il10_il10r1_unbinding          0.021102
+  il10r1_il10r2_binding          0.026865
+  il10r1_il10r2_unbinding        1.85e-07
+  il10_complex_jak1_binding      259.69
+  il10_complex_jak1_unbinding    1.84e-05
+  il10_jak1_med_STAT3_act        0.26601
+  il10_jak1_med_STAT1_act        0.00010932
+  SOCS1_jak1_binding             27.862
+  SOCS1_jak1_unbinding           0.15851
+  pSTAT3_rec_dissoc              0.07587
+  pSTAT1_rec_dissoc              1.0407
+  PTP_med_STAT3_deact            42.641
+  PTP_med_STAT1_deact            0.0087941
+  STAT3_SOCS3_ind                3849.8
+  STAT3_SOCS1_ind                112.58
+  STAT1_SOCS3_ind                385.5
+  STAT1_SOCS1_ind                2979.2
+  L1_0                           1
+  L2_0                           0
+  IL6R_0                         24.804
+  GP130_0                        250.78
+  IL10R1_0                       2060.6
+  IL10R2_0                       1.3526
+  JAK1_0                         291.68
+  JAK2_0                         1.01
+  SOCS3_0                        0
+  SOCS1_0                        0
+  PTP3_0                         0.9675
+  PTP1_0                         17.021
+  SOCS3_degrad                   1.38e-07
+  SOCS1_degrad                   0.00027035
+  S3_0                           0.0043508
+  S1_0                           0.013867
+end parameters
+
+begin molecule types
+  GP130(il6r,jak2,socs3,stat)
+  IL10R1(l2,il10r2,jak1,stat)
+  IL10R2(il10r1)
+  IL6R(l1,gp130,jak1,socs3,stat)
+  JAK1(rec,socs1)
+  JAK2(gp130)
+  L1(il6r)
+  L2(il10r1)
+  PTP1()
+  PTP3()
+  S1(Y~0~P)
+  S3(Y~0~P)
+  SOCS1(jak1)
+  SOCS3(il6r,gp130)
+end molecule types
+
+begin seed species
+  L1(il6r) L1_0
+  IL6R(gp130,jak1,l1,socs3,stat) IL6R_0
+  GP130(il6r,jak2,socs3,stat) GP130_0
+  L2(il10r1) L2_0
+  IL10R1(il10r2,jak1,l2,stat) IL10R1_0
+  IL10R2(il10r1) IL10R2_0
+  JAK1(rec,socs1) JAK1_0
+  JAK2(gp130) JAK2_0
+  SOCS3(gp130,il6r) SOCS3_0
+  SOCS1(jak1) SOCS1_0
+  PTP3() PTP3_0
+  PTP1() PTP1_0
+  S3(Y~0) S3_0
+  S1(Y~0) S1_0
+end seed species
+
+begin observables
+  Molecules total_pS3 IL6R(l1!1,gp130!2,jak1!3,socs3,stat!4).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1).S3(Y~P!4) S3(Y~P) IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat!4).JAK2(gp130!3).S3(Y~P!4) IL10R1(l2!1,il10r2!2,jak1!3,stat!4).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1).S3(Y~P!4)
+  Molecules total_pS1 IL6R(l1!1,gp130!2,jak1!3,socs3,stat!4).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1).S1(Y~P!4) S1(Y~P) IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat!4).JAK2(gp130!3).S1(Y~P!4) IL10R1(l2!1,il10r2!2,jak1!3,stat!4).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1).S1(Y~P!4)
+end observables
+
+begin reaction rules
+  _R1: IL6R(l1,gp130,jak1,socs3,stat) + L1(il6r) <-> IL6R(l1!1,gp130,jak1,socs3,stat).L1(il6r!1) il6_il6r_binding, il6_il6r_unbinding
+  _R2: IL6R(l1!1,gp130,jak1,socs3,stat).L1(il6r!1) + GP130(il6r,jak2,socs3,stat) <-> IL6R(l1!1,gp130!2,jak1,socs3,stat).L1(il6r!1).GP130(il6r!2,jak2,socs3,stat) il6r_gp130_binding, il6r_gp130_unbinding
+  _R3: IL6R(l1!1,gp130!2,jak1,socs3,stat).L1(il6r!1).GP130(il6r!2) + JAK1(rec,socs1) <-> IL6R(l1!1,gp130!2,jak1!3,socs3,stat).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1) il6_complex_jak1_binding, il6_complex_jak1_unbinding
+  _R4: IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2,socs3,stat) + JAK2(gp130) <-> IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat).JAK2(gp130!3) il6_complex_jak2_binding, il6_complex_jak2_unbinding
+  _R5: IL6R(l1!1,gp130!2,jak1!3,socs3,stat).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1) + SOCS3(il6r,gp130) <-> IL6R(l1!1,gp130!2,jak1!3,socs3!4,stat).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1).SOCS3(il6r!4,gp130) SOCS3_il6r_binding, SOCS3_il6r_unbinding
+  _R6: IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat).JAK2(gp130!3) + SOCS3(il6r,gp130) <-> IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3!4,stat).JAK2(gp130!3).SOCS3(il6r,gp130!4) SOCS3_gp130_binding, SOCS3_gp130_unbinding
+  _R7: IL6R(l1!1,gp130!2,jak1!3,socs3,stat).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1) + SOCS1(jak1) <-> IL6R(l1!1,gp130!2,jak1!3,socs3,stat).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1!4).SOCS1(jak1!4) SOCS1_jak1_binding, SOCS1_jak1_unbinding
+  _R8: IL6R(l1!1,gp130!2,jak1!3,socs3,stat).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1) + S3(Y~0) -> IL6R(l1!1,gp130!2,jak1!3,socs3,stat!4).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1).S3(Y~P!4) il6_jak1_med_STAT3_act
+  _R9: IL6R(l1!1,gp130!2,jak1!3,socs3,stat!4).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1).S3(Y~P!4) -> IL6R(l1!1,gp130!2,jak1!3,socs3,stat).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1) + S3(Y~P) pSTAT3_rec_dissoc
+  _R10: IL6R(l1!1,gp130!2,jak1!3,socs3,stat).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1) + S1(Y~0) -> IL6R(l1!1,gp130!2,jak1!3,socs3,stat!4).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1).S1(Y~P!4) il6_jak1_med_STAT1_act
+  _R11: IL6R(l1!1,gp130!2,jak1!3,socs3,stat!4).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1).S1(Y~P!4) -> IL6R(l1!1,gp130!2,jak1!3,socs3,stat).L1(il6r!1).GP130(il6r!2).JAK1(rec!3,socs1) + S1(Y~P) pSTAT1_rec_dissoc
+  _R12: IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat).JAK2(gp130!3) + S3(Y~0) -> IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat!4).JAK2(gp130!3).S3(Y~P!4) il6_jak2_med_STAT3_act
+  _R13: IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat!4).JAK2(gp130!3).S3(Y~P!4) -> IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat).JAK2(gp130!3) + S3(Y~P) pSTAT3_rec_dissoc
+  _R14: IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat).JAK2(gp130!3) + S1(Y~0) -> IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat!4).JAK2(gp130!3).S1(Y~P!4) il6_jak2_med_STAT1_act
+  _R15: IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat!4).JAK2(gp130!3).S1(Y~P!4) -> IL6R(l1!1,gp130!2).L1(il6r!1).GP130(il6r!2,jak2!3,socs3,stat).JAK2(gp130!3) + S1(Y~P) pSTAT1_rec_dissoc
+  _R16: IL10R1(l2,il10r2,jak1,stat) + L2(il10r1) <-> IL10R1(l2!1,il10r2,jak1,stat).L2(il10r1!1) il10_il10r1_binding, il10_il10r1_unbinding
+  _R17: IL10R1(l2!1,il10r2,jak1,stat).L2(il10r1!1) + IL10R2(il10r1) <-> IL10R1(l2!1,il10r2!2,jak1,stat).L2(il10r1!1).IL10R2(il10r1!2) il10r1_il10r2_binding, il10r1_il10r2_unbinding
+  _R18: IL10R1(l2!1,il10r2!2,jak1,stat).L2(il10r1!1).IL10R2(il10r1!2) + JAK1(rec,socs1) <-> IL10R1(l2!1,il10r2!2,jak1!3,stat).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1) il10_complex_jak1_binding, il10_complex_jak1_unbinding
+  _R19: IL10R1(l2!1,il10r2!2,jak1!3,stat).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1) + SOCS1(jak1) <-> IL10R1(l2!1,il10r2!2,jak1!3,stat).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1!4).SOCS1(jak1!4) SOCS1_jak1_binding, SOCS1_jak1_unbinding
+  _R20: IL10R1(l2!1,il10r2!2,jak1!3,stat).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1) + S3(Y~0) -> IL10R1(l2!1,il10r2!2,jak1!3,stat!4).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1).S3(Y~P!4) il10_jak1_med_STAT3_act
+  _R21: IL10R1(l2!1,il10r2!2,jak1!3,stat!4).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1).S3(Y~P!4) -> IL10R1(l2!1,il10r2!2,jak1!3,stat).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1) + S3(Y~P) pSTAT3_rec_dissoc
+  _R22: IL10R1(l2!1,il10r2!2,jak1!3,stat).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1) + S1(Y~0) -> IL10R1(l2!1,il10r2!2,jak1!3,stat!4).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1).S1(Y~P!4) il10_jak1_med_STAT1_act
+  _R23: IL10R1(l2!1,il10r2!2,jak1!3,stat!4).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1).S1(Y~P!4) -> IL10R1(l2!1,il10r2!2,jak1!3,stat).L2(il10r1!1).IL10R2(il10r1!2).JAK1(rec!3,socs1) + S1(Y~P) pSTAT1_rec_dissoc
+  _R24: PTP3() + S3(Y~P) -> PTP3() + S3(Y~0) PTP_med_STAT3_deact
+  _R25: PTP1() + S1(Y~P) -> PTP1() + S1(Y~0) PTP_med_STAT1_deact
+  _R26: S3(Y~P) -> S3(Y~P) + SOCS3(il6r,gp130) STAT3_SOCS3_ind
+  _R27: S3(Y~P) -> S3(Y~P) + SOCS1(jak1) STAT3_SOCS1_ind
+  _R28: S1(Y~P) -> S1(Y~P) + SOCS3(il6r,gp130) STAT1_SOCS3_ind
+  _R29: S1(Y~P) -> S1(Y~P) + SOCS1(jak1) STAT1_SOCS1_ind
+  _R30: SOCS3(il6r,gp130) -> 0 SOCS3_degrad
+  _R31: SOCS1(jak1) -> 0 SOCS1_degrad
+end reaction rules
+
+end model
+
+# Generate network and simulate
+generate_network({overwrite=>1})
