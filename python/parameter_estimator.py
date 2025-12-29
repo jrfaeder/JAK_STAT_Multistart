@@ -240,11 +240,31 @@ class ParameterEstimator:
                 if col in cond_row:
                     cond_params[col] = cond_row[col]
 
-            # Run simulation for this condition
+            # Get measurements for this condition
+            cond_measurements = self.measurements_df[
+                self.measurements_df['simulationConditionId'] == cond_id
+            ]
+
+            # Get unique measurement times for this condition
+            meas_times = np.sort(cond_measurements['time'].unique())
+
+            # Find the greatest common divisor of all measurement times to determine step size
+            # All times should be multiples of this value
+            time_gcd = np.gcd.reduce(meas_times.astype(int))
+            if time_gcd == 0:
+                time_gcd = 1
+
+            # Calculate n_steps to ensure all measurement times are hit exactly
+            # This creates evenly-spaced timepoints with spacing = time_gcd
+            t_end = meas_times[-1]
+            n_steps = int(t_end / time_gcd) + 1
+
+            # Run simulation with fine enough resolution to hit all measurement timepoints
             try:
+                #print(f"Simulating condition {cond_id} with t_end={t_end}, n_steps={n_steps}")
                 result = simulator.simulate(
-                    t_end=self.timepoints[-1],
-                    n_steps=len(self.timepoints),
+                    t_end=t_end,
+                    n_steps=n_steps,
                     reference_values=cond_params
                 )
             except Exception as e:
@@ -252,19 +272,18 @@ class ParameterEstimator:
                     print(f"Simulation failed for condition {cond_id}: {e}")
                 return np.inf
 
-            # Get measurements for this condition
-            cond_measurements = self.measurements_df[
-                self.measurements_df['simulationConditionId'] == cond_id
-            ]
-
             # Compute likelihood for each measurement
             for _, meas_row in cond_measurements.iterrows():
                 obs_id = meas_row['observableId']
                 time = meas_row['time']
                 measurement = meas_row['measurement']
 
-                # Find closest timepoint in simulation
+                # Find the timepoint index (should be exact match now with GCD-based stepping)
                 time_idx = np.argmin(np.abs(result['time'] - time))
+                if not np.isclose(result['time'][time_idx], time):
+                    if verbose:
+                        print(f"Warning: Timepoint {time} doesn't match closest ({result['time'][time_idx]}) in simulation results for condition {cond_id}")
+                    return np.inf # Penalize if timepoint not found
 
                 # Get observable formula and noise
                 obs_row = self.observables_df[
@@ -332,29 +351,45 @@ class ParameterEstimator:
             norm_cond_id = norm_cond.iloc[0]['conditionId']
 
             # Run simulation at normalization condition
+            # Get measurement times for normalization condition to ensure we hit t=20 exactly
+            norm_meas = self.measurements_df[
+                self.measurements_df['simulationConditionId'] == norm_cond_id
+            ]
+            norm_times = np.sort(norm_meas['time'].unique())
+
+            # Find the last timepoint <= 20 (should be exactly 20)
+            max_time = norm_times[norm_times <= 20.0][-1] if len(norm_times[norm_times <= 20.0]) > 0 else 20.0
+
+            # Use GCD approach to ensure we hit t=20 exactly
+            norm_times_subset = norm_times[norm_times <= max_time]
+            time_gcd = np.gcd.reduce(norm_times_subset.astype(int))
+            if time_gcd == 0:
+                time_gcd = 1
+            n_steps_norm = int(max_time / time_gcd)
+
             try:
                 norm_result = simulator.simulate(
-                    t_end=20,
-                    n_steps=20,
+                    t_end=max_time,
+                    n_steps=n_steps_norm,
                     reference_values={'L1_0': 10.0, 'L2_0': 0.0}
                 )
 
-                # Get model values at t=20
+                # Get model values at t=20 (should be exact match now)
                 time_idx_20 = np.argmin(np.abs(norm_result['time'] - 20.0))
                 pS1_model_20 = norm_result['total_pS1'][time_idx_20]
                 pS3_model_20 = norm_result['total_pS3'][time_idx_20]
 
                 # Get experimental values at t=20 for normalization condition
-                norm_meas = self.measurements_df[
+                norm_meas_20 = self.measurements_df[
                     (self.measurements_df['simulationConditionId'] == norm_cond_id) &
                     (self.measurements_df['time'] == 20.0)
                 ]
 
-                pS1_exp_20 = norm_meas[
-                    norm_meas['observableId'] == 'obs_total_pS1'
+                pS1_exp_20 = norm_meas_20[
+                    norm_meas_20['observableId'] == 'obs_total_pS1'
                 ]['measurement'].values[0]
-                pS3_exp_20 = norm_meas[
-                    norm_meas['observableId'] == 'obs_total_pS3'
+                pS3_exp_20 = norm_meas_20[
+                    norm_meas_20['observableId'] == 'obs_total_pS3'
                 ]['measurement'].values[0]
 
                 # Compute scaling factors

@@ -14,19 +14,19 @@
     </listOfCompartments>
     <listOfSpecies>
       <species id="S1" compartment="cell" initialAmount="0" name="L1(il6r)"/>
-      <species id="S2" compartment="cell" initialAmount="24.804" name="IL6R(gp130,jak1,l1,socs3,stat)"/>
-      <species id="S3" compartment="cell" initialAmount="250.78" name="GP130(il6r,jak2,socs3,stat)"/>
+      <species id="S2" compartment="cell" initialAmount="24.422" name="IL6R(gp130,jak1,l1,socs3,stat)"/>
+      <species id="S3" compartment="cell" initialAmount="156.52" name="GP130(il6r,jak2,socs3,stat)"/>
       <species id="S4" compartment="cell" initialAmount="0" name="L2(il10r1)"/>
-      <species id="S5" compartment="cell" initialAmount="2060.6" name="IL10R1(il10r2,jak1,l2,stat)"/>
-      <species id="S6" compartment="cell" initialAmount="1.3526" name="IL10R2(il10r1)"/>
-      <species id="S7" compartment="cell" initialAmount="291.68" name="JAK1(rec,socs1)"/>
-      <species id="S8" compartment="cell" initialAmount="1.01" name="JAK2(gp130)"/>
+      <species id="S5" compartment="cell" initialAmount="2573.9" name="IL10R1(il10r2,jak1,l2,stat)"/>
+      <species id="S6" compartment="cell" initialAmount="1.3915" name="IL10R2(il10r1)"/>
+      <species id="S7" compartment="cell" initialAmount="301.53" name="JAK1(rec,socs1)"/>
+      <species id="S8" compartment="cell" initialAmount="0.82478" name="JAK2(gp130)"/>
       <species id="S9" compartment="cell" initialAmount="0" name="SOCS3(gp130,il6r)"/>
       <species id="S10" compartment="cell" initialAmount="0" name="SOCS1(jak1)"/>
-      <species id="S11" compartment="cell" initialAmount="0.9675" name="PTP3()"/>
-      <species id="S12" compartment="cell" initialAmount="17.021" name="PTP1()"/>
-      <species id="S13" compartment="cell" initialAmount="0.0043508" name="S3(Y~0)"/>
-      <species id="S14" compartment="cell" initialAmount="0.013867" name="S1(Y~0)"/>
+      <species id="S11" compartment="cell" initialAmount="0.70846" name="PTP3()"/>
+      <species id="S12" compartment="cell" initialAmount="18.354" name="PTP1()"/>
+      <species id="S13" compartment="cell" initialAmount="0.0040953" name="S3(Y~0)"/>
+      <species id="S14" compartment="cell" initialAmount="0.011716" name="S1(Y~0)"/>
       <species id="S15" compartment="cell" initialAmount="0" name="IL6R(gp130,jak1,l1!1,socs3,stat).L1(il6r!1)"/>
       <species id="S16" compartment="cell" initialAmount="0" name="IL10R1(il10r2,jak1,l2!1,stat).L2(il10r1!1)"/>
       <species id="S17" compartment="cell" initialAmount="0" name="GP130(il6r!1,jak2,socs3,stat).IL6R(gp130!1,jak1,l1!2,socs3,stat).L1(il6r!2)"/>
@@ -69,56 +69,56 @@
     </listOfSpecies>
     <listOfParameters>
       <!-- Independent variables -->
-      <parameter id="il6_il6r_binding" value="0.019056"/>
-      <parameter id="il6_il6r_unbinding" value="9.22e-07"/>
-      <parameter id="il6r_gp130_binding" value="2.1585"/>
-      <parameter id="il6r_gp130_unbinding" value="0.0020191"/>
-      <parameter id="il6_complex_jak1_binding" value="3.83e-05"/>
-      <parameter id="il6_complex_jak1_unbinding" value="0.092048"/>
-      <parameter id="il6_complex_jak2_binding" value="0.026832"/>
-      <parameter id="il6_complex_jak2_unbinding" value="1.75e-08"/>
-      <parameter id="SOCS3_il6r_binding" value="2225.8"/>
-      <parameter id="SOCS3_il6r_unbinding" value="0.39669"/>
-      <parameter id="SOCS3_gp130_binding" value="325.41"/>
-      <parameter id="SOCS3_gp130_unbinding" value="3.45e-05"/>
-      <parameter id="il6_jak1_med_STAT3_act" value="1.4e-05"/>
-      <parameter id="il6_jak1_med_STAT1_act" value="2.32e-05"/>
-      <parameter id="il6_jak2_med_STAT3_act" value="0.46833"/>
-      <parameter id="il6_jak2_med_STAT1_act" value="0.00050093"/>
-      <parameter id="il10_il10r1_binding" value="0.004884"/>
-      <parameter id="il10_il10r1_unbinding" value="0.021102"/>
-      <parameter id="il10r1_il10r2_binding" value="0.026865"/>
-      <parameter id="il10r1_il10r2_unbinding" value="1.85e-07"/>
-      <parameter id="il10_complex_jak1_binding" value="259.69"/>
-      <parameter id="il10_complex_jak1_unbinding" value="1.84e-05"/>
-      <parameter id="il10_jak1_med_STAT3_act" value="0.26601"/>
-      <parameter id="il10_jak1_med_STAT1_act" value="0.00010932"/>
-      <parameter id="SOCS1_jak1_binding" value="27.862"/>
-      <parameter id="SOCS1_jak1_unbinding" value="0.15851"/>
-      <parameter id="pSTAT3_rec_dissoc" value="0.07587"/>
-      <parameter id="pSTAT1_rec_dissoc" value="1.0407"/>
-      <parameter id="PTP_med_STAT3_deact" value="42.641"/>
-      <parameter id="PTP_med_STAT1_deact" value="0.0087941"/>
-      <parameter id="STAT3_SOCS3_ind" value="3849.8"/>
-      <parameter id="STAT3_SOCS1_ind" value="112.58"/>
-      <parameter id="STAT1_SOCS3_ind" value="385.5"/>
-      <parameter id="STAT1_SOCS1_ind" value="2979.2"/>
+      <parameter id="il6_il6r_binding" value="0.01679"/>
+      <parameter id="il6_il6r_unbinding" value="2.22e-06"/>
+      <parameter id="il6r_gp130_binding" value="4.1384"/>
+      <parameter id="il6r_gp130_unbinding" value="0.0015447"/>
+      <parameter id="il6_complex_jak1_binding" value="3.45e-05"/>
+      <parameter id="il6_complex_jak1_unbinding" value="0.080367"/>
+      <parameter id="il6_complex_jak2_binding" value="0.029552"/>
+      <parameter id="il6_complex_jak2_unbinding" value="1.17e-08"/>
+      <parameter id="SOCS3_il6r_binding" value="6759.2"/>
+      <parameter id="SOCS3_il6r_unbinding" value="0.22405"/>
+      <parameter id="SOCS3_gp130_binding" value="1991.9"/>
+      <parameter id="SOCS3_gp130_unbinding" value="2.32e-05"/>
+      <parameter id="il6_jak1_med_STAT3_act" value="6.56e-05"/>
+      <parameter id="il6_jak1_med_STAT1_act" value="1.8e-05"/>
+      <parameter id="il6_jak2_med_STAT3_act" value="0.63155"/>
+      <parameter id="il6_jak2_med_STAT1_act" value="0.00040048"/>
+      <parameter id="il10_il10r1_binding" value="0.0046447"/>
+      <parameter id="il10_il10r1_unbinding" value="0.0071473"/>
+      <parameter id="il10r1_il10r2_binding" value="0.021968"/>
+      <parameter id="il10r1_il10r2_unbinding" value="4.12e-07"/>
+      <parameter id="il10_complex_jak1_binding" value="210.72"/>
+      <parameter id="il10_complex_jak1_unbinding" value="1.64e-05"/>
+      <parameter id="il10_jak1_med_STAT3_act" value="0.35205"/>
+      <parameter id="il10_jak1_med_STAT1_act" value="8.44e-05"/>
+      <parameter id="SOCS1_jak1_binding" value="28.677"/>
+      <parameter id="SOCS1_jak1_unbinding" value="0.17372"/>
+      <parameter id="pSTAT3_rec_dissoc" value="0.0906"/>
+      <parameter id="pSTAT1_rec_dissoc" value="1.312"/>
+      <parameter id="PTP_med_STAT3_deact" value="45.754"/>
+      <parameter id="PTP_med_STAT1_deact" value="0.0083683"/>
+      <parameter id="STAT3_SOCS3_ind" value="2930.2"/>
+      <parameter id="STAT3_SOCS1_ind" value="180.71"/>
+      <parameter id="STAT1_SOCS3_ind" value="276.71"/>
+      <parameter id="STAT1_SOCS1_ind" value="5143.4"/>
       <parameter id="L1_0" value="0"/>
       <parameter id="L2_0" value="0"/>
-      <parameter id="IL6R_0" value="24.804"/>
-      <parameter id="GP130_0" value="250.78"/>
-      <parameter id="IL10R1_0" value="2060.6"/>
-      <parameter id="IL10R2_0" value="1.3526"/>
-      <parameter id="JAK1_0" value="291.68"/>
-      <parameter id="JAK2_0" value="1.01"/>
+      <parameter id="IL6R_0" value="24.422"/>
+      <parameter id="GP130_0" value="156.52"/>
+      <parameter id="IL10R1_0" value="2573.9"/>
+      <parameter id="IL10R2_0" value="1.3915"/>
+      <parameter id="JAK1_0" value="301.53"/>
+      <parameter id="JAK2_0" value="0.82478"/>
       <parameter id="SOCS3_0" value="0"/>
       <parameter id="SOCS1_0" value="0"/>
-      <parameter id="PTP3_0" value="0.9675"/>
-      <parameter id="PTP1_0" value="17.021"/>
-      <parameter id="SOCS3_degrad" value="1.38e-07"/>
-      <parameter id="SOCS1_degrad" value="0.00027035"/>
-      <parameter id="S3_0" value="0.0043508"/>
-      <parameter id="S1_0" value="0.013867"/>
+      <parameter id="PTP3_0" value="0.70846"/>
+      <parameter id="PTP1_0" value="18.354"/>
+      <parameter id="SOCS3_degrad" value="7.64e-08"/>
+      <parameter id="SOCS1_degrad" value="0.00014035"/>
+      <parameter id="S3_0" value="0.0040953"/>
+      <parameter id="S1_0" value="0.011716"/>
       <!-- Observables -->
       <parameter id="total_pS3" constant="false"/>
       <parameter id="total_pS1" constant="false"/>
